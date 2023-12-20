@@ -1,5 +1,9 @@
 Sub Convert_PDF_to_TXT_File()
 
+'BETA VERSION ONLY. I DO NOT KNOW WHAT I'M DOING AND IF THIS BREAKS YOUR COMPUTER (WHICH IT MAY), THAT'S ON YOU.  ALWAYS UNDERSTAND CODE BEFORE USING!
+'I'M TRYING MY BEST HERE. 
+'IM FINE.
+
 Dim aApp As Acrobat.AcroApp
 Dim AV_Doc As CAcroAVDoc
 Dim PDF_Doc As CAcroPDDoc
@@ -35,8 +39,7 @@ Set PDF_Doc = AV_Doc.GetPDDoc
 Debug.Print "pdf_file = " & pdf_file
 
 Dim TxtFile As String
-'TxtFile = CreateObject("WScript.Shell").SpecialFolders("Desktop") & "\" & Left(PDF_Name, InStr(PDF_Name, ".") - 1) & ".txt" 'CREATE THE TEXT FILE
-TxtFile = Left(pdf_file, InStrRev(pdf_file, "\")) & Left(PDF_Name, InStr(PDF_Name, ".") - 1) & ".txt"
+TxtFile = Left(pdf_file, InStrRev(pdf_file, "\")) & Left(PDF_Name, InStr(PDF_Name, ".") - 1) & ".txt" 'SAVE TXT FILE IN THE SAME SPOT AS THE PDF FILE, BUT AS A .TXT FILE INSTEAD
 Open TxtFile For Output As #1
 
 For i = 0 To PDF_Doc.GetNumPages - 1
@@ -63,13 +66,11 @@ For i = 0 To PDF_Doc.GetNumPages - 1
 Next i
 
         Print #1, FullText
-        
-If InStr(FullText, "Ellington") > 0 Then
-Debug.Print "Found Ellington"
-End If
 
 AV_Doc.Close False
 aApp.Exit
+
+MsgBox "Completed Something"
 
 Set Sel_Txt = Nothing
 Set AV_Doc = Nothing

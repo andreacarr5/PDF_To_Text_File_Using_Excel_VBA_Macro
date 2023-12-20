@@ -1,0 +1,79 @@
+Sub Convert_PDF_to_TXT_File()
+
+Dim aApp As Acrobat.AcroApp
+Dim AV_Doc As CAcroAVDoc
+Dim PDF_Doc As CAcroPDDoc
+Dim Sel_Txt As CAcroPDTextSelect
+Dim PageNumber, PageContent, Content
+Dim PDF_Name As String
+
+Dim FullText As String 'FULL TEXT AS STRING
+
+Set aApp = CreateObject("AcroExch.App")
+Set AV_Doc = CreateObject("AcroExch.AVDoc")
+
+    Dim myFile As FileDialog
+    Dim pdf_file As String
+    Set myFile = Application.FileDialog(msoFileDialogFilePicker)
+    myFile.AllowMultiSelect = False
+    myFile.Title = "Select a PDF file"
+    If myFile.Show = -1 Then
+        pdf_file = myFile.SelectedItems(1)
+    End If
+
+If AV_Doc.Open(pdf_file, vbNull) <> True Then Exit Sub
+
+While AV_Doc Is Nothing
+Set AV_Doc = aApp.GetActiveDoc
+Wend
+
+PDF_Name = Right(pdf_file, Len(pdf_file) - InStrRev(pdf_file, "\"))
+
+Set PDF_Doc = AV_Doc.GetPDDoc
+'Debug.Print "PDF_Doc Pages = " & PDF_Doc.GetNumPages ' GET NUMBER OF PAGES IN PDF AND LABEL THOSE PDF_DOC PAGES
+
+Debug.Print "pdf_file = " & pdf_file
+
+Dim TxtFile As String
+'TxtFile = CreateObject("WScript.Shell").SpecialFolders("Desktop") & "\" & Left(PDF_Name, InStr(PDF_Name, ".") - 1) & ".txt" 'CREATE THE TEXT FILE
+TxtFile = Left(pdf_file, InStrRev(pdf_file, "\")) & Left(PDF_Name, InStr(PDF_Name, ".") - 1) & ".txt"
+Open TxtFile For Output As #1
+
+For i = 0 To PDF_Doc.GetNumPages - 1
+    
+    Set PageNumber = PDF_Doc.AcquirePage(i)
+    Set PageContent = CreateObject("AcroExch.HiliteList")
+    
+    On Error Resume Next
+    If PageContent.Add(0, 9000) <> True Then Exit Sub
+    
+    Set Sel_Txt = PageNumber.CreatePageHilite(PageContent)
+    On Error GoTo 0
+
+'Debug.Print "Sel_Txt.GetNumText = " & Sel_Txt.GetNumText
+
+    For j = 0 To Sel_Txt.GetNumText - 1
+        
+        FullText = FullText & Sel_Txt.GetText(j)
+
+        'Print #1, Trim(Sel_Txt.GetText(j)); Spc(1)
+
+    Next j
+    
+Next i
+
+        Print #1, FullText
+        
+If InStr(FullText, "Ellington") > 0 Then
+Debug.Print "Found Ellington"
+End If
+
+AV_Doc.Close False
+aApp.Exit
+
+Set Sel_Txt = Nothing
+Set AV_Doc = Nothing
+Set aApp = Nothing
+Set PDF_Doc = Nothing
+
+End Sub
